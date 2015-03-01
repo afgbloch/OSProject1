@@ -1,6 +1,7 @@
 #!/bin/bash
 cd /usr/src/linux/
 sudo cp /mnt/hgfs/OSProject1/get_child_pids.c /usr/src/linux/kernel/
+sudo cp /mnt/hgfs/OSProject1/get_unique_id.c /usr/src/linux/kernel/
 make -j2 bzImage
 
 if [ $? -ne 0 ]; then
