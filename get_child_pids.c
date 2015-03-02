@@ -12,13 +12,12 @@ asmlinkage long sys_get_child_pids(pid_t* list, size_t limit, size_t* num_childr
     int returnVal = 0;
     
 	if(list == NULL && limit != 0) {
-        return -EFAULT; //change error type
+        return -EFAULT;
 	}
 	
     read_lock(&tasklist_lock);
 	list_for_each(position, &current->children) {
 	    child = list_entry(position, struct task_struct, sibling);
-	    /* task now points to one of current’s children */
 	    nbP++;
 	    if(nbP <= limit) {
             returnVal = put_user(child->pid, list);
