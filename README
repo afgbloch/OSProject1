@@ -1,0 +1,24 @@
+OS Project 1
+============
+
+1) Get unique ID syscall
+========================
+
+The call signature is as follow:
+get_unique_id(int* uuid)
+
+The system call called « get_unique_id » declares and manipulates an atomic counter. This counter is initialized with the value 0. Then each time the kernel runs « sys_get_unique_id », it tries to save this counter value in the user space location given by the received parameter « uuid ». It does so by calling « put_user ». It then examines the output of this call. If there were no issues, it increments the counter value. Finally it returns the return value of the « put_user » call.
+To deal with concurrency, we used an atomic counter.
+
+2) List children PIDs syscall
+=============================
+
+The call signature is as follow:
+get_child_pids(pid_t* list, size_t limit, size_t* num_children)
+
+The system call called « get_child_pids » returns a list of PIDs of a process direct children.
+It first checks if the « list » pointer is equal to « NULL » and the « limit » is not equal to 0. In that case, it returns an « -EFAULT » error code.
+Otherwise, it allocates some memory space to contain the « limit » number of PIDs. Now it has to go through all the children PIDs. It counts all of them. It also copies those PIDs, into the list we allocated before, as long as the number of PIDs is not bigger than the « limit » value. This has to be done locking « tasklist_lock » to deal with concurrency.
+If the number of PIDs is bigger than the « limit » value, it saves « -ENOBUFS » error code into a variable called « returnVal » that we will return at the end. We have to save this error code and not return it now because we have some work to do still. 
+Indeed we have to save the number of PIDs to the memory location given by « num_children » pointer. This is done using « put_user ». If this fails we return « -EFAULT ». Then we copy the PIDs from our allocated list into memory located by the « list » pointer. This is also done using « put_user » and if one of those call fails, we return « -EFAULT ».
+Finally we return the variable « returnVal ».
